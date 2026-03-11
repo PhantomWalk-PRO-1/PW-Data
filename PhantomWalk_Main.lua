@@ -1,116 +1,15 @@
--- ==========================================
--- PHANTOMWALK PRO | V1.8.8 (COMMERCIAL EDITION)
--- Developer: Kucing garong 😼
--- Theme: Solid Dark Purple + Spider Web Overlay (Video Accurate)
--- Feature: Absolute POV Camera, Analog Override, Obstacle Stop
--- Exclusive: Teleport Hub, Fly Mode, Copy Avatar, Reverse, el mundur
--- Patch: Restored V1.8.1 Solid UI Backing, Pastel Purple Sliders, Fire Minimize
--- ==========================================
-local players = game:GetService("Players")
-local runService = game:GetService("RunService")
-local coreGui = game:GetService("CoreGui")
-local tweenService = game:GetService("TweenService")
-local httpService = game:GetService("HttpService")
-local uis = game:GetService("UserInputService")
-local workspace = game:GetService("Workspace")
+--[[
+ .____                  ________ ___.    _____                           __                
+ |    |    __ _______   \_____  \\_ |___/ ____\_ __  ______ ____ _____ _/  |_  ___________ 
+ |    |   |  |  \__  \   /   |   \| __ \   __\  |  \/  ___// ___\\__  \\   __\/  _ \_  __ \
+ |    |___|  |  // __ \_/    |    \ \_\ \  | |  |  /\___ \\  \___ / __ \|  | (  <_> )  | \/
+ |_______ \____/(____  /\_______  /___  /__| |____//____  >\___  >____  /__|  \____/|__|   
+         \/          \/         \/    \/                \/     \/     \/                   
+          \_Welcome to LuaObfuscator.com   (Alpha 0.10.9) ~  Much Love, Ferib 
 
-local player = players.LocalPlayer
-local character = player.Character or player.CharacterAdded:Wait()
-local humanoid = character:WaitForChild("Humanoid")
-local rootPart = character:WaitForChild("HumanoidRootPart")
+]]--
 
--- ==========================================
--- DATABASE & FILE SYSTEM
--- ==========================================
-local savedPaths = {} 
-local savedWaypoints = {} 
-local fileNamesToTry = {"CaptainErr_Autowalk_Paths.json", "PhantomWalk_Pro_Data.json"}
-
-local function serializeFrames(fToSer)
-    local s = {}
-    for _, f in ipairs(fToSer) do
-        table.insert(s, {Time = f.Time, MoveDir = {X = f.MoveDir.X, Y = f.MoveDir.Y, Z = f.MoveDir.Z}, Pos = {X = f.Pos.X, Y = f.Pos.Y, Z = f.Pos.Z}, Look = {X = f.Look.X, Y = f.Look.Y, Z = f.Look.Z}, Jump = f.Jump})
-    end return s
-end
-
-local function deserializeFrames(s)
-    local d = {}
-    for _, f in ipairs(s) do
-        if f.Time and f.Pos then
-            table.insert(d, {Time = f.Time, MoveDir = Vector3.new(f.MoveDir.X, f.MoveDir.Y, f.MoveDir.Z), Pos = Vector3.new(f.Pos.X, f.Pos.Y, f.Pos.Z), Look = Vector3.new(f.Look.X, f.Look.Y, f.Look.Z), Jump = f.Jump})
-        end
-    end return d
-end
-
-local function saveToFile()
-    pcall(function()
-        if writefile then
-            local data = { Paths = {}, Waypoints = {} }
-            for n, d in pairs(savedPaths) do data.Paths[n] = serializeFrames(d) end
-            for _, wp in ipairs(savedWaypoints) do table.insert(data.Waypoints, {Name = wp.Name, Pos = {X = wp.Pos.X, Y = wp.Pos.Y, Z = wp.Pos.Z}}) end
-            writefile("PhantomWalk_Pro_Data.json", httpService:JSONEncode(data))
-        end
-    end)
-end
-
-local function loadFromFile()
-    for _, fname in ipairs(fileNamesToTry) do
-        pcall(function()
-            if readfile and isfile and isfile(fname) then
-                local data = httpService:JSONDecode(readfile(fname))
-                if data.Paths then
-                    for n, d in pairs(data.Paths) do savedPaths[n] = deserializeFrames(d) end
-                    if data.Waypoints then
-                        for _, wp in ipairs(data.Waypoints) do table.insert(savedWaypoints, {Name = wp.Name, Pos = Vector3.new(wp.Pos.X, wp.Pos.Y, wp.Pos.Z)}) end
-                    end
-                else
-                    for n, d in pairs(data) do 
-                        if type(d) == "table" and #d > 0 then savedPaths[n] = deserializeFrames(d) end
-                    end
-                end
-            end
-        end)
-    end
-end
-loadFromFile()
-
-local function getFreshCharacter()
-    character = player.Character or player.CharacterAdded:Wait()
-    if character then
-        humanoid = character:FindFirstChild("Humanoid") or character:WaitForChild("Humanoid", 2)
-        rootPart = character:FindFirstChild("HumanoidRootPart") or character:WaitForChild("HumanoidRootPart", 2)
-    end
-end
-
--- VARIABEL CORE 
-local frames = {}
-local isRecording, isPlaying, isUndoing = false, false, false
-local recordConn, playConn, jumpEvent, tpLoopTask, flyConn, parachuteConn
-local recordStartTime = 0 
-local isVisualizerOn = false 
-local currentPathColor = Color3.fromRGB(150, 230, 255) 
-local isAntiFallOn = false 
-local isWalkBackwards = false 
-local isReversePlay = false 
-local isLoopingTP = false 
-local isSpeedSuper = false 
-local isDraggingFly = false
-
--- Variabel Fly Mode
-local isFlying = false
-local flySpeed = 50
-
-local SPIDER_WEB_BG = "rbxthumb://type=Asset&id=122843202332263&w=420&h=420"
-local originalMouseLock = player.DevEnableMouseLock
-
-local function togglePlayerControls(enable)
-    pcall(function()
-        local pm = require(player.PlayerScripts:WaitForChild("PlayerModule")):GetControls()
-        if enable then pm:Enable() player.DevEnableMouseLock = originalMouseLock
-        else pm:Disable() originalMouseLock = player.DevEnableMouseLock player.DevEnableMouseLock = false end
-    end)
-end
-
+local v0=game:GetService("Players");local v1=game:GetService("RunService");local v2=game:GetService("CoreGui");local v3=game:GetService("TweenService");local v4=game:GetService("HttpService");local v5=game:GetService("UserInputService");local v6=game:GetService("Workspace");local v7=v0.LocalPlayer;local v8=v7.Character or v7.CharacterAdded:Wait() ;local v9=v8:WaitForChild("Humanoid");local v10=v8:WaitForChild("HumanoidRootPart");local v11={};local v12={};local v13={"CaptainErr_Autowalk_Paths.json","PhantomWalk_Pro_Data.json"};local function v14(v416) local v417=0;local v418;while true do if (v417==1) then return v418;end if (v417==(0 -0)) then v418={};for v716,v717 in ipairs(v416) do table.insert(v418,{Time=v717.Time,MoveDir={X=v717.MoveDir.X,Y=v717.MoveDir.Y,Z=v717.MoveDir.Z},Pos={X=v717.Pos.X,Y=v717.Pos.Y,Z=v717.Pos.Z},Look={X=v717.Look.X,Y=v717.Look.Y,Z=v717.Look.Z},Jump=v717.Jump});end v417=1;end end end local function v15(v419) local v420=0;local v421;while true do if (v420==(1636 -(1373 + 263))) then v421={};for v718,v719 in ipairs(v419) do if (v719.Time and v719.Pos) then table.insert(v421,{Time=v719.Time,MoveDir=Vector3.new(v719.MoveDir.X,v719.MoveDir.Y,v719.MoveDir.Z),Pos=Vector3.new(v719.Pos.X,v719.Pos.Y,v719.Pos.Z),Look=Vector3.new(v719.Look.X,v719.Look.Y,v719.Look.Z),Jump=v719.Jump});end end v420=1001 -(451 + 549) ;end if (v420==(1 + 0)) then return v421;end end end local function v16() pcall(function() if writefile then local v631=0 -0 ;local v632;while true do if ((1 -0)==v631) then for v846,v847 in ipairs(v12) do table.insert(v632.Waypoints,{Name=v847.Name,Pos={X=v847.Pos.X,Y=v847.Pos.Y,Z=v847.Pos.Z}});end writefile("PhantomWalk_Pro_Data.json",v4:JSONEncode(v632));break;end if (v631==0) then v632={Paths={},Waypoints={}};for v848,v849 in pairs(v11) do v632.Paths[v848]=v14(v849);end v631=1385 -(746 + 638) ;end end end end);end local function v17() for v540,v541 in ipairs(v13) do pcall(function() if (readfile and isfile and isfile(v541)) then local v720=v4:JSONDecode(readfile(v541));if v720.Paths then for v851,v852 in pairs(v720.Paths) do v11[v851]=v15(v852);end if v720.Waypoints then for v875,v876 in ipairs(v720.Waypoints) do table.insert(v12,{Name=v876.Name,Pos=Vector3.new(v876.Pos.X,v876.Pos.Y,v876.Pos.Z)});end end else for v854,v855 in pairs(v720) do if ((type(v855)=="table") and ( #v855>(0 + 0))) then v11[v854]=v15(v855);end end end end end);end end v17();local function v18() local v422=0 -0 ;while true do if (v422==(341 -(218 + 123))) then v8=v7.Character or v7.CharacterAdded:Wait() ;if v8 then local v792=1581 -(1535 + 46) ;while true do if (v792==0) then v9=v8:FindFirstChild("Humanoid") or v8:WaitForChild("Humanoid",2) ;v10=v8:FindFirstChild("HumanoidRootPart") or v8:WaitForChild("HumanoidRootPart",2 + 0 ) ;break;end end end break;end end end local v19={};local v20,v21,v22=false,false,false;local v23,v24,v25,v26,v27,v28;local v29=0 + 0 ;local v30=false;local v31=Color3.fromRGB(710 -(306 + 254) ,15 + 215 ,500 -245 );local v32=false;local v33=false;local v34=false;local v35=false;local v36=false;local v37=false;local v38=false;local v39=1517 -(899 + 568) ;local v40="rbxthumb://type=Asset&id=122843202332263&w=420&h=420";local v41=v7.DevEnableMouseLock;local function v42(v423) pcall(function() local v542=require(v7.PlayerScripts:WaitForChild("PlayerModule")):GetControls();if v423 then local v633=0;while true do if ((0 + 0)==v633) then v542:Enable();v7.DevEnableMouseLock=v41;break;end end else local v634=0 -0 ;while true do if ((603 -(268 + 335))==v634) then v542:Disable();v41=v7.DevEnableMouseLock;v634=291 -(60 + 230) ;end if (v634==1) then v7.DevEnableMouseLock=false;break;end end end end);end local function v43() local v424=572 -(426 + 146) ;local v425;local v426;while true do if (v424==(0 + 0)) then v425,v426=pcall(function() return require(v7.PlayerScripts:WaitForChild("PlayerModule")):GetControls():GetMoveVector();end);return v425 and v426 and (v426.Magnitude>0) ;end end end local function v44(v427) local v428=1456 -(282 + 1174) ;local v429;local v430;while true do if (v428==1) then v8:PivotTo(v427);v429.CFrame=v10.CFrame:ToWorldSpace(v430);break;end if (0==v428) then v429=v6.CurrentCamera;v430=v10.CFrame:ToObjectSpace(v429.CFrame);v428=812 -(569 + 242) ;end end end local v45="PhantomWalkPro";if v2:FindFirstChild(v45) then v2[v45]:Destroy();end local v46=Instance.new("ScreenGui",v2);v46.Name=v45;local v48=Color3.fromRGB(255,734 -479 ,255);local v49=Color3.fromRGB(1 + 14 ,1034 -(706 + 318) ,1271 -(721 + 530) );local v50=Color3.fromRGB(1431 -(945 + 326) ,110,549 -329 );local v51=Instance.new("ImageButton",v46);v51.Size=UDim2.new(0 + 0 ,760 -(271 + 429) ,0,56 + 4 );v51.Position=UDim2.new(1500.5 -(1408 + 92) , -(1116 -(461 + 625)),1288 -(993 + 295) ,1 + 14 );v51.BackgroundColor3=Color3.fromRGB(20,1181 -(418 + 753) ,15);v51.Image=v40;v51.ImageTransparency=0.3 + 0 ;v51.Visible=false;v51.Draggable=true;Instance.new("UICorner",v51).CornerRadius=UDim.new(1,0 + 0 );local v60=Instance.new("UIStroke",v51);v60.Color=Color3.fromRGB(255,15 + 35 ,0 + 0 );v60.Thickness=531 -(406 + 123) ;local v63=Instance.new("UIGradient",v51);v63.Color=ColorSequence.new({ColorSequenceKeypoint.new(0 + 0 ,Color3.fromRGB(1577 -(1249 + 73) ,11 + 19 ,0)),ColorSequenceKeypoint.new(0.5,Color3.fromRGB(255,120,0)),ColorSequenceKeypoint.new(1146 -(466 + 679) ,Color3.fromRGB(613 -358 ,220,0 -0 ))});v63.Rotation= -45;local v66=Instance.new("TextLabel",v51);v66.Size=UDim2.new(1,0,1901 -(106 + 1794) ,0 + 0 );v66.BackgroundTransparency=1;v66.Text="Phantom";v66.TextColor3=v48;v66.Font=Enum.Font.GothamBold;v66.TextSize=3 + 8 ;v66.TextStrokeTransparency=0.2;v66.TextStrokeColor3=Color3.fromRGB(59 -39 ,0 -0 ,0);local v76=Instance.new("Frame",v46);v76.Size=UDim2.new(114 -(4 + 110) ,1184 -(57 + 527) ,1427 -(41 + 1386) ,350);v76.Position=UDim2.new(103.5 -(17 + 86) , -300,0.5 + 0 , -(390 -215));v76.BackgroundColor3=v49;v76.BackgroundTransparency=0;v76.Active=true;v76.Draggable=true;v76.ClipsDescendants=true;Instance.new("UICorner",v76).CornerRadius=UDim.new(0,12);local v85=Instance.new("ImageLabel",v76);v85.Size=UDim2.new(1,0,2 -1 ,166 -(122 + 44) );v85.BackgroundTransparency=1 -0 ;v85.Image=v40;v85.ScaleType=Enum.ScaleType.Crop;v85.ImageTransparency=0.65;local v92=Instance.new("TextLabel",v76);v92.Size=UDim2.new(3 -2 , -50,0 + 0 ,6 + 34 );v92.Position=UDim2.new(0 -0 ,85 -(30 + 35) ,0 + 0 ,0);v92.BackgroundTransparency=1258 -(1043 + 214) ;v92.Text="PhantomWalk Pro | V1.8.8";v92.TextColor3=Color3.fromRGB(240,240,907 -667 );v92.Font=Enum.Font.GothamBold;v92.TextSize=16;v92.TextXAlignment=Enum.TextXAlignment.Left;local v102=Instance.new("TextButton",v76);v102.Size=UDim2.new(0,30,0,30);v102.Position=UDim2.new(1213 -(323 + 889) , -(107 -67),0,585 -(361 + 219) );v102.BackgroundColor3=Color3.fromRGB(370 -(53 + 267) ,5 + 15 ,60);v102.Text="-";v102.TextColor3=v48;v102.Font=Enum.Font.GothamBold;v102.TextSize=433 -(15 + 398) ;Instance.new("UICorner",v102).CornerRadius=UDim.new(0,6);v102.MouseButton1Click:Connect(function() local v431=0;while true do if (v431==(982 -(18 + 964))) then v76.Visible=false;v51.Visible=true;break;end end end);v51.MouseButton1Click:Connect(function() local v432=0 -0 ;while true do if (v432==(0 + 0)) then v76.Visible=true;v51.Visible=false;break;end end end);local v111=Instance.new("ScrollingFrame",v76);v111.Size=UDim2.new(0 + 0 ,150,851 -(20 + 830) , -40);v111.Position=UDim2.new(0 + 0 ,126 -(116 + 10) ,0 + 0 ,778 -(542 + 196) );v111.BackgroundColor3=Color3.fromRGB(10,5,15);v111.BackgroundTransparency=0.4 -0 ;v111.ScrollBarThickness=1 + 1 ;local v117=Instance.new("UIListLayout",v111);v117.Padding=UDim.new(0,3 + 2 );v117.HorizontalAlignment=Enum.HorizontalAlignment.Center;local v121=Instance.new("Frame",v76);v121.Size=UDim2.new(1, -160,1 + 0 , -(131 -81));v121.Position=UDim2.new(0 -0 ,1706 -(1126 + 425) ,405 -(118 + 287) ,176 -131 );v121.BackgroundTransparency=1122 -(118 + 1003) ;local v125={};local function v126(v433) local v434=Instance.new("TextButton",v111);v434.Size=UDim2.new(0.9,0 -0 ,377 -(142 + 235) ,158 -123 );v434.BackgroundColor3=Color3.fromRGB(7 + 23 ,997 -(553 + 424) ,75 -35 );v434.Text=v433;v434.TextColor3=v48;v434.Font=Enum.Font.GothamBold;v434.TextSize=10 + 1 ;Instance.new("UICorner",v434).CornerRadius=UDim.new(0 + 0 ,6);local v443=Instance.new("Frame",v121);v443.Size=UDim2.new(1 + 0 ,0 + 0 ,1 + 0 ,0 -0 );v443.BackgroundTransparency=2 -1 ;v443.Visible=false;v125[v433]={Button=v434,Frame=v443};v434.MouseButton1Click:Connect(function() for v596,v597 in pairs(v125) do local v598=0 -0 ;while true do if (v598==(0 + 0)) then v597.Frame.Visible=v596==v433 ;v597.Button.BackgroundColor3=((v596==v433) and Color3.fromRGB(386 -306 ,40,853 -(239 + 514) )) or Color3.fromRGB(11 + 19 ,1349 -(797 + 532) ,30 + 10 ) ;break;end end end end);return v443;end local v127=v126("ðŸŽ® Main Control");local v128=v126("âš¡ Speed Autowalk");local v129=v126("ðŸ“‚ Path Manager");local v130=v126("â­ Fitur");local v131=v126("ðŸŽ¨ Bar Tema");local v132=v126("ðŸ“š Tutorial");local v133=v126("â„¹ï¸ Info");v111.CanvasSize=UDim2.new(0 + 0 ,0 -0 ,1202 -(373 + 829) ,7 * 40 );v125["ðŸŽ® Main Control"].Frame.Visible=true;v125["ðŸŽ® Main Control"].Button.BackgroundColor3=Color3.fromRGB(811 -(476 + 255) ,1170 -(369 + 761) ,58 + 42 );local function v137(v448,v449,v450) local v451=0 -0 ;local v452;local v453;local v454;local v455;local v456;while true do if (v451==(9 -4)) then v456=Instance.new("TextLabel",v453);v456.Size=UDim2.new(239 -(64 + 174) ,0 + 0 ,0,29 -9 );v456.BackgroundTransparency=337 -(144 + 192) ;v456.Text="Status: Idle (0 fr)";v451=222 -(42 + 174) ;end if (v451==0) then v452=Instance.new("Frame",v46);v452.Size=UDim2.new(0,v449,0 + 0 ,v450);v452.Position=UDim2.new(0.5,v448,0.5, -(125 + 25));v452.BackgroundColor3=Color3.fromRGB(9 + 11 ,15,1529 -(363 + 1141) );v451=1;end if (v451==3) then v454=Instance.new("UIListLayout",v453);v454.SortOrder=Enum.SortOrder.LayoutOrder;v454.HorizontalAlignment=Enum.HorizontalAlignment.Center;v454.Padding=UDim.new(1580 -(1183 + 397) ,5);v451=11 -7 ;end if (v451==(6 + 1)) then return v452,v456,v453,v454;end if (v451==(5 + 1)) then v456.TextColor3=v48;v456.Font=Enum.Font.GothamBold;v456.TextSize=1988 -(1913 + 62) ;v456.LayoutOrder=1;v451=5 + 2 ;end if (v451==(2 -1)) then v452.BackgroundTransparency=1933.15 -(565 + 1368) ;v452.Active=true;v452.Draggable=true;v452.Visible=false;v451=7 -5 ;end if (v451==4) then v455=Instance.new("Frame",v453);v455.Size=UDim2.new(1662 -(1477 + 184) ,0 -0 ,0 + 0 ,858 -(564 + 292) );v455.BackgroundTransparency=1 -0 ;v455.LayoutOrder=0 -0 ;v451=5;end if (v451==(306 -(244 + 60))) then Instance.new("UICorner",v452).CornerRadius=UDim.new(0 + 0 ,484 -(41 + 435) );v453=Instance.new("Frame",v452);v453.Size=UDim2.new(1002 -(938 + 63) ,0,1 + 0 ,1125 -(936 + 189) );v453.BackgroundTransparency=1 + 0 ;v451=3;end end end local function v138(v457,v458,v459,v460,v461) local v462=1613 -(1565 + 48) ;local v463;local v464;local v465;while true do if (v462==(1 + 0)) then v463.Active=true;Instance.new("UICorner",v463).CornerRadius=UDim.new(1138 -(782 + 356) ,273 -(176 + 91) );v464=Instance.new("TextLabel",v463);v464.Size=UDim2.new(2 -1 ,0,0.6,0 -0 );v462=1094 -(975 + 117) ;end if (v462==(1879 -(157 + 1718))) then v465.TextColor3=v48;v465.Font=Enum.Font.GothamBold;v465.TextSize=8 + 1 ;return v463;end if (2==v462) then v464.BackgroundTransparency=3 -2 ;v464.Text=v458;v464.TextSize=20;v465=Instance.new("TextLabel",v463);v462=10 -7 ;end if ((1018 -(697 + 321))==v462) then v463=Instance.new("TextButton",v457);v463.Size=UDim2.new(0,v461 or (130 -82) ,1 -0 ,0);v463.BackgroundColor3=v460;v463.Text="";v462=2 -1 ;end if (v462==3) then v465.Size=UDim2.new(1 + 0 ,0 -0 ,0.4 -0 ,0);v465.Position=UDim2.new(1227 -(322 + 905) ,611 -(602 + 9) ,1189.6 -(449 + 740) ,872 -(826 + 46) );v465.BackgroundTransparency=1;v465.Text=v459;v462=951 -(245 + 702) ;end end end local v139,v140,v141=v137( -280,884 -604 ,110);local v142=Instance.new("TextBox",v141);v142.Size=UDim2.new(0.8,0 + 0 ,1898 -(260 + 1638) ,25);v142.BackgroundColor3=Color3.fromRGB(480 -(382 + 58) ,128 -88 ,42 + 8 );v142.TextColor3=v48;v142.PlaceholderText="Ketik Nama Path di sini...";v142.Font=Enum.Font.Gotham;v142.TextSize=22 -11 ;v142.LayoutOrder=2;Instance.new("UICorner",v142).CornerRadius=UDim.new(0 -0 ,1209 -(902 + 303) );local v152=Instance.new("Frame",v141);v152.Size=UDim2.new(1 -0 , -10,0 -0 ,4 + 41 );v152.BackgroundTransparency=1691 -(1121 + 569) ;v152.LayoutOrder=217 -(22 + 192) ;local v156=Instance.new("UIListLayout",v152);v156.FillDirection=Enum.FillDirection.Horizontal;v156.Padding=UDim.new(683 -(483 + 200) ,1468 -(1404 + 59) );v156.HorizontalAlignment=Enum.HorizontalAlignment.Center;local v161=v138(v152,"ðŸ”´","REC",Color3.fromRGB(120,30,109 -69 ));local v162=v138(v152,"â¹ï¸","STOP",Color3.fromRGB(80 -20 ,60,845 -(468 + 297) ));local v163=v138(v152,"âª","UNDO",Color3.fromRGB(712 -(334 + 228) ,100,30));local v164=v138(v152,"ðŸ’¾","SAVE",Color3.fromRGB(101 -71 ,80,120));local v165=v138(v152,"ðŸ","TP END",Color3.fromRGB(185 -105 ,40,120));local v166,v167,v168=v137(36 -16 ,240,85);local v169=Instance.new("Frame",v168);v169.Size=UDim2.new(1 + 0 , -(246 -(141 + 95)),0,45 + 0 );v169.BackgroundTransparency=2 -1 ;v169.LayoutOrder=2;local v173=Instance.new("UIListLayout",v169);v173.FillDirection=Enum.FillDirection.Horizontal;v173.Padding=UDim.new(0 -0 ,2 + 3 );v173.HorizontalAlignment=Enum.HorizontalAlignment.Center;local v177=v138(v169,"â–¶ï¸","PLAY",Color3.fromRGB(30,328 -208 ,60));local v178=v138(v169,"â¹ï¸","STOP",Color3.fromRGB(43 + 17 ,32 + 28 ,112 -32 ));local v179=v138(v169,"ðŸ”„","REV",Color3.fromRGB(59 + 41 ,40,263 -(92 + 71) ));local v180=v138(v169,"ðŸš¶â€â™‚ï¸","el mundur",Color3.fromRGB(20 + 20 ,134 -54 ,865 -(574 + 191) ),50 + 10 );local function v181(v466) v140.Text=v466;v167.Text=v466;end v179.MouseButton1Click:Connect(function() local v469=0 -0 ;while true do if (v469==0) then v34= not v34;v179.BackgroundColor3=(v34 and Color3.fromRGB(92 + 88 ,929 -(254 + 595) ,306 -(55 + 71) )) or Color3.fromRGB(131 -31 ,40,1890 -(573 + 1217) ) ;break;end end end);v180.MouseButton1Click:Connect(function() local v470=0;while true do if (v470==0) then v33= not v33;v180.BackgroundColor3=(v33 and Color3.fromRGB(80,443 -283 ,16 + 184 )) or Color3.fromRGB(40,80,161 -61 ) ;break;end end end);local v182=Instance.new("TextButton",v127);v182.Size=UDim2.new(0.4,0,939 -(714 + 225) ,146 -96 );v182.Position=UDim2.new(0.05,0 -0 ,0.05,0 + 0 );v182.BackgroundColor3=Color3.fromRGB(100,30,57 -17 );v182.Text="Show REC Panel";v182.TextColor3=v48;v182.Font=Enum.Font.GothamBold;Instance.new("UICorner",v182).CornerRadius=UDim.new(0,812 -(118 + 688) );v182.MouseButton1Click:Connect(function() v139.Visible= not v139.Visible;end);local v190=Instance.new("TextButton",v127);v190.Size=UDim2.new(48.4 -(25 + 23) ,0 + 0 ,1886 -(927 + 959) ,168 -118 );v190.Position=UDim2.new(732.55 -(16 + 716) ,0 -0 ,97.05 -(11 + 86) ,0);v190.BackgroundColor3=Color3.fromRGB(73 -43 ,385 -(175 + 110) ,151 -91 );v190.Text="Show PLAY Panel";v190.TextColor3=v48;v190.Font=Enum.Font.GothamBold;Instance.new("UICorner",v190).CornerRadius=UDim.new(0,6);v190.MouseButton1Click:Connect(function() v166.Visible= not v166.Visible;end);local v198=Instance.new("TextLabel",v128);v198.Size=UDim2.new(0.9,0,0 -0 ,20);v198.Position=UDim2.new(0.05,1796 -(503 + 1293) ,0.05,0 -0 );v198.BackgroundTransparency=1 + 0 ;v198.Text="Mode Kecepatan Autowalk:";v198.TextColor3=v48;v198.Font=Enum.Font.GothamBold;v198.TextXAlignment=Enum.TextXAlignment.Left;local v206=Instance.new("TextButton",v128);v206.Size=UDim2.new(1061.9 -(810 + 251) ,0 + 0 ,0 + 0 ,45);v206.Position=UDim2.new(0.05 + 0 ,533 -(43 + 490) ,0.15,0);v206.BackgroundColor3=Color3.fromRGB(773 -(711 + 22) ,580 -430 ,50);v206.Text="NORMAL\n(sesuai rekaman asli)";v206.TextColor3=v48;v206.Font=Enum.Font.GothamBold;v206.TextSize=11;Instance.new("UICorner",v206).CornerRadius=UDim.new(0,865 -(240 + 619) );local v215=Instance.new("TextButton",v128);v215.Size=UDim2.new(0.9,0,0,11 + 34 );v215.Position=UDim2.new(0.05 -0 ,0 + 0 ,0.35,0);v215.BackgroundColor3=Color3.fromRGB(40,1774 -(1344 + 400) ,455 -(255 + 150) );v215.Text="SUPER\n(anti kedut kedut)";v215.TextColor3=v48;v215.Font=Enum.Font.GothamBold;v215.TextSize=11;Instance.new("UICorner",v215).CornerRadius=UDim.new(0,5 + 1 );v206.MouseButton1Click:Connect(function() local v473=0;while true do if ((1 + 0)==v473) then v215.BackgroundColor3=Color3.fromRGB(170 -130 ,96 -66 ,1789 -(404 + 1335) );break;end if (v473==(406 -(183 + 223))) then v36=false;v206.BackgroundColor3=Color3.fromRGB(40,150,60 -10 );v473=1 + 0 ;end end end);v215.MouseButton1Click:Connect(function() local v474=0;while true do if (v474==(1 + 0)) then v206.BackgroundColor3=Color3.fromRGB(377 -(10 + 327) ,30,50);break;end if (v474==(0 + 0)) then v36=true;v215.BackgroundColor3=Color3.fromRGB(538 -(118 + 220) ,120,10 + 20 );v474=1;end end end);local v224=Instance.new("ScrollingFrame",v130);v224.Size=UDim2.new(450 -(108 + 341) ,0,1 + 0 ,0);v224.BackgroundTransparency=4 -3 ;v224.ScrollBarThickness=4;local v228=Instance.new("UIListLayout",v224);v228.Padding=UDim.new(1493 -(711 + 782) ,5);v228.HorizontalAlignment=Enum.HorizontalAlignment.Center;local function v231(v475,v476) local v477=Instance.new("Frame",v224);v477.Size=UDim2.new(0.95,0,0 -0 ,35);v477.BackgroundColor3=Color3.fromRGB(494 -(270 + 199) ,7 + 13 ,1854 -(580 + 1239) );v477.ClipsDescendants=true;Instance.new("UICorner",v477).CornerRadius=UDim.new(0 -0 ,6);local v482=Instance.new("TextButton",v477);v482.Size=UDim2.new(1 + 0 ,0,0 + 0 ,35);v482.BackgroundTransparency=1 + 0 ;v482.Text="  "   .. v475   .. " ðŸ”½" ;v482.TextColor3=v48;v482.Font=Enum.Font.GothamBold;v482.TextXAlignment=Enum.TextXAlignment.Left;local v491=Instance.new("Frame",v477);v491.Position=UDim2.new(0,0 -0 ,0 + 0 ,1207 -(645 + 522) );v491.Size=UDim2.new(1791 -(1010 + 780) ,0,1 + 0 , -40);v491.BackgroundTransparency=4 -3 ;local v495=false;v482.MouseButton1Click:Connect(function() local v543=0 -0 ;while true do if (v543==(1836 -(1045 + 791))) then v495= not v495;v482.Text=(v495 and ("  "   .. v475   .. " ðŸ”¼")) or ("  "   .. v475   .. " ðŸ”½") ;v543=1;end if (v543==(2 -1)) then v477.Size=(v495 and UDim2.new(0.95 -0 ,0,505 -(351 + 154) ,v476)) or UDim2.new(1574.95 -(1281 + 293) ,266 -(28 + 238) ,0,77 -42 ) ;break;end end end);return v491;end local v232=v231("ðŸš€ Teleport Hub",1759 -(1381 + 178) );local v233=Instance.new("TextBox",v232);v233.Size=UDim2.new(0.65 + 0 ,0 + 0 ,0,13 + 17 );v233.Position=UDim2.new(0.02,0,0 -0 ,0 + 0 );v233.BackgroundColor3=Color3.fromRGB(510 -(381 + 89) ,27 + 3 ,34 + 16 );v233.TextColor3=v48;v233.PlaceholderText="Nama Waypoint...";v233.Font=Enum.Font.Gotham;Instance.new("UICorner",v233).CornerRadius=UDim.new(0 -0 ,1160 -(1074 + 82) );local v241=Instance.new("TextButton",v232);v241.Size=UDim2.new(0.25 -0 ,1784 -(214 + 1570) ,0,30);v241.Position=UDim2.new(1455.7 -(990 + 465) ,0 + 0 ,0,0 + 0 );v241.BackgroundColor3=Color3.fromRGB(39 + 1 ,100,590 -440 );v241.Text="ðŸ“ Mark";v241.TextColor3=v48;v241.Font=Enum.Font.GothamBold;Instance.new("UICorner",v241).CornerRadius=UDim.new(1726 -(1668 + 58) ,4);local v249=Instance.new("ScrollingFrame",v232);v249.Size=UDim2.new(626.95 -(512 + 114) ,0,0,208 -128 );v249.Position=UDim2.new(0.02 -0 ,0,0 -0 ,17 + 18 );v249.BackgroundTransparency=0.5 + 0 ;v249.BackgroundColor3=Color3.f
 local function isTryingToMoveAnalog()
     local success, moveVec = pcall(function() return require(player.PlayerScripts:WaitForChild("PlayerModule")):GetControls():GetMoveVector() end)
     return (success and moveVec and moveVec.Magnitude > 0)
