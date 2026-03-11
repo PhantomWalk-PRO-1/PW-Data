@@ -1,20 +1,59 @@
 -- ==========================================
--- PHANTOMWALK-PRO-1 | UI-FIRST LOADER
--- Developer: Bos Rangga 😼
+-- PHANTOMWALK-PRO-1 | LOADER MULTI-PLAN ANTI-ISP
+-- Developer: kucing garong 😼
 -- ==========================================
 
 local player = game:GetService("Players").LocalPlayer
 local myUserId = 8459930744 
-local queenId = 518969839  
-local scriptLink = "https://raw.githubusercontent.com/PhantomWalk-PRO-1/PW-Data/refs/heads/main/PhantomWalk_Main.lua"
+local ayangId = 518969839  
 
--- 1. JALUR VIP
-if player.UserId == myUserId or player.UserId == queenId then
-    loadstring(game:HttpGet(scriptLink))()
+-- ==========================================
+-- FUNGSI MULTI-PLAN FETCH (ANTI-BLOKIR)
+-- ==========================================
+local function fetchScript(urlList)
+    for i, url in ipairs(urlList) do
+        local success, result = pcall(function()
+            return game:HttpGet(url)
+        end)
+        -- Jika sukses dan bukan halaman error kosong
+        if success and result and string.len(result) > 50 then
+            return result, i -- Return script dan Plan ke-berapa yang berhasil
+        end
+    end
+    return nil, 0
+end
+
+-- DAFTAR JALUR HARTA KARUN (MAIN LUA)
+local mainLuaPlans = {
+    "https://cdn.jsdelivr.net/gh/PhantomWalk-PRO-1/PW-Data@main/PhantomWalk_Main.lua", -- Plan A: jsDelivr (Paling Kuat)
+    "https://raw.githack.com/PhantomWalk-PRO-1/PW-Data/main/PhantomWalk_Main.lua",     -- Plan B: GitHack (Cadangan)
+    "https://raw.githubusercontent.com/PhantomWalk-PRO-1/PW-Data/refs/heads/main/PhantomWalk_Main.lua" -- Plan C: GitHub Asli
+}
+
+-- DAFTAR JALUR API KEYAUTH
+local keyAuthPlans = {
+    "https://cdn.jsdelivr.net/gh/KeyAuth/KeyAuth-Roblox@main/keyauth.lua", -- Plan A
+    "https://raw.githack.com/KeyAuth/KeyAuth-Roblox/main/keyauth.lua",     -- Plan B
+    "https://raw.githubusercontent.com/KeyAuth/KeyAuth-Roblox/main/keyauth.lua" -- Plan C
+}
+
+-- ==========================================
+-- 1. JALUR VIP KHUSUS (BOS & AYANG)
+-- ==========================================
+if player.UserId == myUserId or player.UserId == ayangId then
+    local mainScript, planUsed = fetchScript(mainLuaPlans)
+    if mainScript then
+        print("Akses VIP Diterima! Menggunakan Plan: " .. planUsed)
+        loadstring(mainScript)()
+    else
+        warn("SEMUA PLAN GAGAL! ISP MEMBLOKIR SEMUA JALUR.")
+    end
     return 
 end
 
--- 2. MUNCULKAN UI LEBIH DULU (Biar pasti kelihatan)
+-- ==========================================
+-- 2. UI LOGIN (MUNCUL PERTAMA AGAR TERLIHAT)
+-- ==========================================
 local sg = Instance.new("ScreenGui", game.CoreGui)
 sg.Name = "PhantomAuth"
 
@@ -27,7 +66,7 @@ Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 12)
 local title = Instance.new("TextLabel", frame)
 title.Size = UDim2.new(1, 0, 0, 50)
 title.BackgroundTransparency = 1
-title.Text = "MEMUAT SISTEM..."
+title.Text = "MENCARI JALUR AMAN..."
 title.TextColor3 = Color3.fromRGB(255, 215, 0)
 title.Font = Enum.Font.GothamBold
 title.TextSize = 16
@@ -37,7 +76,7 @@ txtKey.Size = UDim2.new(0.8, 0, 0, 40)
 txtKey.Position = UDim2.new(0.1, 0, 0.35, 0)
 txtKey.BackgroundColor3 = Color3.fromRGB(30, 20, 40)
 txtKey.TextColor3 = Color3.fromRGB(255, 255, 255)
-txtKey.PlaceholderText = "Sabar, sedang konek ke server..."
+txtKey.PlaceholderText = "Sabar, kucing garong sedang kerja..."
 txtKey.TextEditable = false 
 Instance.new("UICorner", txtKey).CornerRadius = UDim.new(0, 6)
 
@@ -49,26 +88,25 @@ btnLogin.Text = "TUNGGU SEBENTAR"
 btnLogin.TextColor3 = Color3.fromRGB(255, 255, 255)
 Instance.new("UICorner", btnLogin).CornerRadius = UDim.new(0, 6)
 
--- 3. JALANKAN KEYAUTH DI LATAR BELAKANG
+-- ==========================================
+-- 3. PROSES KEYAUTH DI LATAR BELAKANG
+-- ==========================================
 task.spawn(function()
     local Name = "PhantomWalk-PRO-1"
     local Ownerid = "drBGNk4DVL"
     local Secret = "7701abd392686be2e893a03ad30d4370842d6ce11949275976ca1ba311c4ef6e"
     local Version = "1.0"
 
-    local success, KeyAuthScript = pcall(function()
-        return game:HttpGet("https://raw.githubusercontent.com/KeyAuth/KeyAuth-Roblox/main/keyauth.lua")
-    end)
+    -- Jalankan Multi-Plan untuk menarik API KeyAuth
+    local keyAuthRaw, planUsed = fetchScript(keyAuthPlans)
 
-    if not success then
-        title.Text = "KONEKSI DIBLOKIR ISP!"
+    if not keyAuthRaw then
+        title.Text = "KONEKSI MATI TOTAL (A,B,C GAGAL)!"
         title.TextColor3 = Color3.fromRGB(255, 0, 0)
         return
     end
 
-    local envSuccess, KeyAuth = pcall(function()
-        return loadstring(KeyAuthScript)()
-    end)
+    local envSuccess, KeyAuth = pcall(function() return loadstring(keyAuthRaw)() end)
 
     if envSuccess and KeyAuth then
         KeyAuth.api.name = Name
@@ -79,12 +117,12 @@ task.spawn(function()
         local initSuccess = pcall(function() KeyAuth.api:init() end)
 
         if not initSuccess then
-            title.Text = "ERROR: DELTA MENOLAK KEYAUTH"
+            title.Text = "ERROR: DELTA MENOLAK INIT"
             title.TextColor3 = Color3.fromRGB(255, 0, 0)
             return
         end
 
-        -- KETIKA SUKSES, AKTIFKAN UI UNTUK INPUT KEY
+        -- JIKA SUKSES TEMBUS, BUKA KUNCI UI
         title.Text = "PHANTOMWALK-PRO-1 LOGIN"
         title.TextColor3 = Color3.fromRGB(160, 110, 220)
         txtKey.PlaceholderText = "Masukkan License Key..."
@@ -97,11 +135,18 @@ task.spawn(function()
             KeyAuth.api:license(txtKey.Text)
 
             if KeyAuth.api.success then
-                btnLogin.Text = "SUCCESS!"
+                btnLogin.Text = "BERHASIL!"
                 btnLogin.BackgroundColor3 = Color3.fromRGB(40, 150, 50)
                 task.wait(1)
                 sg:Destroy()
-                loadstring(game:HttpGet(scriptLink))()
+                
+                -- Tarik Main Lua pakai sistem Multi-Plan juga
+                local finalScript, finalPlan = fetchScript(mainLuaPlans)
+                if finalScript then
+                    loadstring(finalScript)()
+                else
+                    warn("Gagal menarik skrip utama setelah login!")
+                end
             else
                 btnLogin.Text = "INVALID KEY!"
                 btnLogin.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
@@ -110,6 +155,11 @@ task.spawn(function()
                 btnLogin.BackgroundColor3 = Color3.fromRGB(160, 110, 220)
             end
         end)
+    else
+        title.Text = "GAGAL MEMUAT KEYAUTH SCRIPT"
+        title.TextColor3 = Color3.fromRGB(255, 0, 0)
+    end
+end)
     else
         title.Text = "ERROR: LOADSTRING GAGAL"
         title.TextColor3 = Color3.fromRGB(255, 0, 0)
