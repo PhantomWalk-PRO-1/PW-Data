@@ -1,7 +1,7 @@
 -- ==========================================
--- PHANTOMWALK PRO | ULTIMATE LOADER V3.1
+-- PHANTOMWALK PRO | ULTIMATE LOADER V3.1 (HYBRID EDITION)
 -- Developer: Kucing garong .. utf8.char(128572)
--- Features: Username Detection, Custom Splash, Anti-Alien
+-- Features: Username Detection, Custom Splash, KeyAuth + Global Key Backup
 -- ==========================================
 
 local player = game:GetService("Players").LocalPlayer
@@ -16,13 +16,11 @@ local myName = player.Name
 local elKapitanName = "kenalin_r" -- Ganti dengan Username Bos Rangga
 local ayangName = "catcatkitty098"    -- Ganti dengan Username Nyonya Ratu
 
--- 💌 Pesan khusus yang muncul di bawah nama Nyonya Ratu
 local pesanBuatAyang = "mangat ayyyy! " .. utf8.char(10084) .. utf8.char(128150)
 
--- 🌟 Daftar Spesial Member (Format: ["Username"] = "Nama Sambutan")
+-- 🌟 Daftar Spesial Member (myanxiety21 sengaja dihapus untuk testing)
 local specialMembers = {
     ["OmGifar133"] = utf8.char(128081) .. " OM GIFAR " .. utf8.char(128081),
-    ["myanxiety21"] = "DUTA BASECAMP",
     ["Anomali_9950"] = "BEST PRENNN",
     ["jaja"] = "BEST PRENNN",
     ["hsj"] = "BEST PRENNN",
@@ -34,20 +32,22 @@ local specialMembers = {
     ["ajjai"] = "BEST PRENNN",
 }
 
--- 💎 Daftar VIP Member Permanen (Masuk tanpa Key)
 local vipMembers = {
     ["KawanVIPSatu"] = true,
     ["KawanVIPDua"] = true
 }
 
--- 🆓 Daftar Free Member (Masuk tanpa Key, tapi terdeteksi Free)
 local freeMembers = {
     ["BocilGratisan1"] = true,
     ["BocilGratisan2"] = true
 }
 
+-- 🔗 PENGATURAN LINK DATA
 local scriptLink = "https://raw.githubusercontent.com/PhantomWalk-PRO-1/PW-Data/main/PhantomWalk_Main.lua"
 local saveFileName = "PhantomWalk_Auth.json"
+
+-- WAJIB BUAT FILE INI DI GITHUB: Isinya cuma 1 baris teks password harian darurat
+local globalKeyURL = "https://raw.githubusercontent.com/PhantomWalk-PRO-1/PW-Data/main/KeyHarian.txt"
 
 -- ==========================================
 -- 🚀 FUNGSI MESIN LOADER & UI
@@ -60,14 +60,13 @@ local function executeMain()
     local r = request or http_request or (http and http.request)
     local mainCode = ""
     pcall(function()
-        if r then mainCode = r({Url = scriptLink .. "?v=" .. math.random(1,999), Method = "GET"}).Body
-        else mainCode = game:HttpGet(scriptLink .. "?v=" .. math.random(1,999)) end
+        if r then mainCode = r({Url = scriptLink .. "?v=" .. math.random(1,9999), Method = "GET"}).Body
+        else mainCode = game:HttpGet(scriptLink .. "?v=" .. math.random(1,9999)) end
     end)
     sg:Destroy()
     if mainCode ~= "" then loadstring(mainCode)() end
 end
 
--- 🎨 FUNGSI TEMPLATE SPLASH WELCOME
 local function showSplash(midText, bottomText, textColor)
     local frame = Instance.new("Frame", sg)
     frame.Size = UDim2.new(0, 360, 0, 220)
@@ -112,11 +111,11 @@ local function showSplash(midText, bottomText, textColor)
 end
 
 -- ==========================================
--- 🕵️ DETEKSI IDENTITAS PLAYER (VIA USERNAME)
+-- 🕵️ DETEKSI IDENTITAS PLAYER
 -- ==========================================
 
 if myName == elKapitanName then
-    showSplash("EL KAPITAN!! " .. utf8.char(128572), " WELCOME BACK BOSSS...", Color3.fromRGB(255, 220, 50))
+    showSplash("EL KAPITAN!!\n" .. utf8.char(128572), " WELCOME BACK BOSSS...", Color3.fromRGB(255, 220, 50))
     return
 elseif myName == ayangName then
     showSplash("NYONYA RATU!! " .. utf8.char(128081), pesanBuatAyang, Color3.fromRGB(255, 105, 180))
@@ -133,7 +132,7 @@ elseif freeMembers[myName] then
 end
 
 -- ==========================================
--- 🔐 SISTEM LOGIN KEYAUTH (PEMBELI BIASA)
+-- 🔐 SISTEM LOGIN HYBRID (GLOBAL KEY + KEYAUTH)
 -- ==========================================
 
 local frame = Instance.new("Frame", sg)
@@ -158,7 +157,7 @@ local infoLabel = Instance.new("TextLabel", frame)
 infoLabel.Size = UDim2.new(0.9, 0, 0, 30)
 infoLabel.Position = UDim2.new(0.05, 0, 0.25, 0)
 infoLabel.BackgroundTransparency = 1
-infoLabel.Text = "Menghubungkan ke server pusat..."
+infoLabel.Text = "Menyiapkan server keamanan..."
 infoLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
 infoLabel.Font = Enum.Font.Gotham
 infoLabel.TextSize = 12
@@ -194,10 +193,17 @@ task.spawn(function()
         return game:HttpGet(url)
     end
 
-    local initRes = request_get("https://keyauth.win/api/1.2/?type=init&ver="..Version.."&name="..Name.."&ownerid="..Ownerid)
-    local initData = HttpService:JSONDecode(initRes)
-    if not initData.success then infoLabel.Text = "Server Error: " .. initData.message return end
-    sessionid = initData.sessionid
+    -- Inisialisasi KeyAuth
+    local initSuccess, initRes = pcall(function()
+        return request_get("https://keyauth.win/api/1.2/?type=init&ver="..Version.."&name="..Name.."&ownerid="..Ownerid)
+    end)
+    
+    if initSuccess and initRes and initRes ~= "" then
+        local decodeInitSuccess, initData = pcall(function() return HttpService:JSONDecode(initRes) end)
+        if decodeInitSuccess and initData.success then 
+            sessionid = initData.sessionid
+        end
+    end
 
     local savedKey = ""
     pcall(function()
@@ -208,17 +214,49 @@ task.spawn(function()
         end
     end)
 
-    local function tryLogin(key)
-        btnLogin.Text = "Mengecek License..."
-        local licRes = request_get("https://keyauth.win/api/1.2/?type=license&key="..key.."&hwid="..hwid.."&sessionid="..sessionid.."&name="..Name.."&ownerid="..Ownerid.."&ver="..Version)
-        local licData = HttpService:JSONDecode(licRes)
+    -- Fungsi Cek KeyAuth
+    local function tryLoginKeyAuth(key)
+        btnLogin.Text = "Mengecek License KeyAuth..."
+        
+        local reqSuccess, licRes = pcall(function()
+            return request_get("https://keyauth.win/api/1.2/?type=license&key="..key.."&hwid="..hwid.."&sessionid="..sessionid.."&name="..Name.."&ownerid="..Ownerid.."&ver="..Version)
+        end)
+
+        if not reqSuccess or not licRes or licRes == "" then
+            infoLabel.Text = "Gagal: Server KeyAuth Down!"
+            btnLogin.Text = "LOGIN & EXECUTE"
+            txtKey.Visible = true
+            return
+        end
+
+        local decodeSuccess, licData = pcall(function() return HttpService:JSONDecode(licRes) end)
+
+        if not decodeSuccess then
+            infoLabel.Text = "Gagal: Terlalu banyak request (Rate Limit)."
+            btnLogin.Text = "LOGIN & EXECUTE"
+            txtKey.Visible = true
+            return
+        end
 
         if licData.success then
             pcall(function() writefile(saveFileName, HttpService:JSONEncode({Key = key})) end)
-            local expiry = os.date("%d-%m-%Y", tonumber(licData.info.expiry))
+            
+            local expiryUnix = tonumber(licData.info.expiry)
+            local expiryDate = os.date("%d-%m-%Y", expiryUnix)
+            
+            local sisaDetik = expiryUnix - os.time()
+            local sisaWaktuTeks = ""
+            if sisaDetik > 0 then
+                local hari = math.floor(sisaDetik / 86400)
+                local jam = math.floor((sisaDetik % 86400) / 3600)
+                local menit = math.floor((sisaDetik % 3600) / 60)
+                sisaWaktuTeks = " | Sisa: " .. hari .. "h " .. jam .. "j " .. menit .. "m"
+            else
+                sisaWaktuTeks = " | Sisa: EXPIRED"
+            end
             
             frame:Destroy()
-            showSplash("VIP MEMBER " .. utf8.char(11088), "License Valid! Aktif Hingga: " .. expiry, Color3.fromRGB(255, 215, 0))
+            showSplash("VIP MEMBER " .. utf8.char(11088), "License Valid! Aktif Hingga: " .. expiryDate .. sisaWaktuTeks, Color3.fromRGB(255, 215, 0))
         else
             infoLabel.Text = "Gagal: " .. (licData.message or "Key Salah!")
             btnLogin.Text = "LOGIN & EXECUTE"
@@ -226,16 +264,53 @@ task.spawn(function()
         end
     end
 
+    -- Menyiapkan tampilan awal
     if savedKey ~= "" then
         infoLabel.Text = "Mendeteksi HWID... Mencoba Auto-Login"
-        tryLogin(savedKey)
+        txtKey.Text = savedKey
+        -- Biarkan user menekan tombol manual agar tidak auto-stuck jika rate limit
+        btnLogin.Text = "LOGIN & EXECUTE"
+        txtKey.Visible = true
     else
-        infoLabel.Text = "Silahkan masukkan License Key kamu"
+        infoLabel.Text = "Silahkan masukkan License atau Global Key"
         btnLogin.Text = "LOGIN & EXECUTE"
         txtKey.Visible = true
     end
 
+    -- Aksi saat tombol ditekan (Logika Hybrid)
     btnLogin.MouseButton1Click:Connect(function()
-        if txtKey.Text ~= "" then tryLogin(txtKey.Text) end
+        local inputKey = txtKey.Text
+        if inputKey == "" then
+            infoLabel.Text = "Key tidak boleh kosong!"
+            return
+        end
+
+        btnLogin.Text = "Mengecek Server..."
+        infoLabel.Text = "Memverifikasi Kredensial..."
+
+        -- TAHAP 1: Cek Global Key dari GitHub dulu
+        local successG, resultG = pcall(function()
+            return game:HttpGet(globalKeyURL .. "?v=" .. math.random(1, 9999))
+        end)
+
+        if successG and resultG and resultG ~= "" then
+            local serverKey = string.gsub(resultG, "%s+", "")
+            local userKey = string.gsub(inputKey, "%s+", "")
+            
+            -- Jika input sama dengan Global Key di GitHub, langsung izinkan masuk!
+            if userKey == serverKey and serverKey ~= "" then
+                frame:Destroy()
+                showSplash("VIP MEMBER " .. utf8.char(11088), "Global Key Valid! Akses Darurat Diberikan.", Color3.fromRGB(255, 215, 0))
+                return -- Berhenti di sini, tidak perlu cek KeyAuth
+            end
+        end
+
+        -- TAHAP 2: Jika bukan Global Key, cek ke sistem KeyAuth
+        if sessionid == "" then
+            infoLabel.Text = "Server KeyAuth belum siap, coba lagi atau pakai Global Key!"
+            btnLogin.Text = "LOGIN & EXECUTE"
+        else
+            tryLoginKeyAuth(inputKey)
+        end
     end)
 end)
