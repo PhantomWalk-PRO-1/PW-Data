@@ -5,7 +5,6 @@
 -- ==========================================
 
 local player = game:GetService("Players").LocalPlayer
-local HttpService = game:GetService("HttpService")
 local myName = player.Name 
 
 -- ==========================================
@@ -13,13 +12,12 @@ local myName = player.Name
 -- WAJIB ISI DENGAN USERNAME ASLI ROBLOX!
 -- ==========================================
 
-local elKapitanName = "kenalin_r" -- Ganti dengan Username Bos
-local ayangName = "catcatkitty098"    -- Ganti dengan Username Nyonya Ratu
+local elKapitanName = "kenalin_r" 
+local ayangName = "catcatkitty098"    
 
--- 💌 Pesan khusus yang muncul di bawah nama Nyonya Ratu
 local pesanBuatAyang = "mangat ayyyy! " .. utf8.char(10084) .. utf8.char(128150)
 
--- 🌟 Daftar Spesial Member (Format: ["Username"] = "Nama Sambutan")
+-- 🌟 Daftar Spesial & VIP Member
 local specialMembers = {
     ["OmGifar133"] = utf8.char(128081) .. " OM GIFAR " .. utf8.char(128081),
     ["Anomali_9950"] = "BEST PRENNN",
@@ -33,20 +31,21 @@ local specialMembers = {
     ["ajjai"] = "BEST PRENNN",
 }
 
--- 💎 Daftar VIP Member Permanen (Masuk tanpa Key)
 local vipMembers = {
     ["KawanVIPSatu"] = true,
     ["KawanVIPDua"] = true
 }
 
--- 🆓 Daftar Free Member (Masuk tanpa Key, tapi terdeteksi Free)
 local freeMembers = {
     ["BocilGratisan1"] = true,
     ["BocilGratisan2"] = true
 }
 
+-- Link utama eksekusi script
 local scriptLink = "https://raw.githubusercontent.com/PhantomWalk-PRO-1/PW-Data/main/PhantomWalk_Main.lua"
-local saveFileName = "PhantomWalk_Auth.json"
+
+-- Link raw GitHub yang berisi daftar KEY (Buat file txt di repo GitHub-mu)
+local keyDatabaseURL = "https://raw.githubusercontent.com/PhantomWalk-PRO-1/PW-Data/main/DaftarKey.txt"
 
 -- ==========================================
 -- 🚀 FUNGSI MESIN LOADER & UI
@@ -59,14 +58,13 @@ local function executeMain()
     local r = request or http_request or (http and http.request)
     local mainCode = ""
     pcall(function()
-        if r then mainCode = r({Url = scriptLink .. "?v=" .. math.random(1,999), Method = "GET"}).Body
-        else mainCode = game:HttpGet(scriptLink .. "?v=" .. math.random(1,999)) end
+        if r then mainCode = r({Url = scriptLink .. "?v=" .. math.random(1,9999), Method = "GET"}).Body
+        else mainCode = game:HttpGet(scriptLink .. "?v=" .. math.random(1,9999)) end
     end)
     sg:Destroy()
     if mainCode ~= "" then loadstring(mainCode)() end
 end
 
--- 🎨 FUNGSI TEMPLATE SPLASH WELCOME
 local function showSplash(midText, bottomText, textColor)
     local frame = Instance.new("Frame", sg)
     frame.Size = UDim2.new(0, 360, 0, 220)
@@ -111,7 +109,7 @@ local function showSplash(midText, bottomText, textColor)
 end
 
 -- ==========================================
--- 🕵️ DETEKSI IDENTITAS PLAYER (VIA USERNAME)
+-- 🕵️ DETEKSI IDENTITAS PLAYER
 -- ==========================================
 
 if myName == elKapitanName then
@@ -132,7 +130,7 @@ elseif freeMembers[myName] then
 end
 
 -- ==========================================
--- 🔐 SISTEM LOGIN KEYAUTH (PEMBELI BIASA)
+-- 🔐 SISTEM LOGIN PENGGUNA BUKAN MEMBER (VIA GITHUB)
 -- ==========================================
 
 local frame = Instance.new("Frame", sg)
@@ -157,7 +155,7 @@ local infoLabel = Instance.new("TextLabel", frame)
 infoLabel.Size = UDim2.new(0.9, 0, 0, 30)
 infoLabel.Position = UDim2.new(0.05, 0, 0.25, 0)
 infoLabel.BackgroundTransparency = 1
-infoLabel.Text = "Menghubungkan ke server pusat..."
+infoLabel.Text = "Silahkan masukkan License Key kamu"
 infoLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
 infoLabel.Font = Enum.Font.Gotham
 infoLabel.TextSize = 12
@@ -168,125 +166,46 @@ txtKey.Position = UDim2.new(0.1, 0, 0.45, 0)
 txtKey.BackgroundColor3 = Color3.fromRGB(30, 20, 45)
 txtKey.TextColor3 = Color3.fromRGB(255, 255, 255)
 txtKey.PlaceholderText = "Masukkan License Key..."
-txtKey.Visible = false
 Instance.new("UICorner", txtKey).CornerRadius = UDim.new(0, 8)
 
 local btnLogin = Instance.new("TextButton", frame)
 btnLogin.Size = UDim2.new(0.8, 0, 0, 40)
 btnLogin.Position = UDim2.new(0.1, 0, 0.7, 0)
 btnLogin.BackgroundColor3 = Color3.fromRGB(160, 110, 220)
-btnLogin.Text = " TUNGGU BENTAR PRENNX..."
+btnLogin.Text = "LOGIN & EXECUTE"
 btnLogin.TextColor3 = Color3.fromRGB(255, 255, 255)
 btnLogin.Font = Enum.Font.GothamBold
 Instance.new("UICorner", btnLogin).CornerRadius = UDim.new(0, 8)
 
 task.spawn(function()
-    local Name = "PhantomWalk-PRO-1"
-    local Ownerid = "drBGNk4DVL"
-    local Version = "1.0"
-    local sessionid = ""
-    local hwid = game:GetService("RbxAnalyticsService"):GetClientId()
-
-    local function request_get(url)
-        local req = request or http_request or (http and http.request)
-        if req then return req({Url = url, Method = "GET"}).Body end
-        return game:HttpGet(url)
-    end
-
-    local initSuccess, initRes = pcall(function()
-        return request_get("https://keyauth.win/api/1.2/?type=init&ver="..Version.."&name="..Name.."&ownerid="..Ownerid)
-    end)
-    
-    if not initSuccess or not initRes or initRes == "" then
-        infoLabel.Text = "Server Error: Gagal menginisialisasi KeyAuth"
-        return
-    end
-
-    local decodeInitSuccess, initData = pcall(function()
-        return HttpService:JSONDecode(initRes)
-    end)
-
-    if not decodeInitSuccess or not initData.success then 
-        infoLabel.Text = "Server Error: " .. (initData and initData.message or "Rate Limit / Gangguan") 
-        return 
-    end
-    
-    sessionid = initData.sessionid
-
-    local savedKey = ""
-    pcall(function()
-        if isfile(saveFileName) then
-            local fileContent = readfile(saveFileName)
-            local data = HttpService:JSONDecode(fileContent)
-            savedKey = data.Key
-        end
-    end)
-
-    local function tryLogin(key)
-        btnLogin.Text = "Mengecek License..."
-        
-        -- Menangkap error koneksi
-        local reqSuccess, licRes = pcall(function()
-            return request_get("https://keyauth.win/api/1.2/?type=license&key="..key.."&hwid="..hwid.."&sessionid="..sessionid.."&name="..Name.."&ownerid="..Ownerid.."&ver="..Version)
-        end)
-
-        if not reqSuccess or not licRes or licRes == "" then
-            infoLabel.Text = "Gagal: Koneksi terputus atau Server KeyAuth Down!"
-            btnLogin.Text = "LOGIN & EXECUTE"
-            txtKey.Visible = true
-            return
-        end
-
-        -- Menangkap error JSON (biasanya karena Cloudflare block / rate limit)
-        local decodeSuccess, licData = pcall(function()
-            return HttpService:JSONDecode(licRes)
-        end)
-
-        if not decodeSuccess then
-            infoLabel.Text = "Gagal: Terlalu banyak request (Rate Limit). Tunggu sebentar!"
-            btnLogin.Text = "LOGIN & EXECUTE"
-            txtKey.Visible = true
-            return
-        end
-
-        -- Proses login jika data JSON valid
-        if licData.success then
-            pcall(function() writefile(saveFileName, HttpService:JSONEncode({Key = key})) end)
-            
-            local expiryUnix = tonumber(licData.info.expiry)
-            local expiryDate = os.date("%d-%m-%Y", expiryUnix)
-            
-            -- Menghitung sisa waktu key
-            local sisaDetik = expiryUnix - os.time()
-            local sisaWaktuTeks = ""
-            if sisaDetik > 0 then
-                local hari = math.floor(sisaDetik / 86400)
-                local jam = math.floor((sisaDetik % 86400) / 3600)
-                local menit = math.floor((sisaDetik % 3600) / 60)
-                sisaWaktuTeks = " | Sisa: " .. hari .. "h " .. jam .. "j " .. menit .. "m"
-            else
-                sisaWaktuTeks = " | Sisa: EXPIRED"
-            end
-            
-            frame:Destroy()
-            showSplash("VIP MEMBER " .. utf8.char(11088), "License Valid! Aktif Hingga: " .. expiryDate .. sisaWaktuTeks, Color3.fromRGB(255, 215, 0))
-        else
-            infoLabel.Text = "Gagal: " .. (licData.message or "Key Salah!")
-            btnLogin.Text = "LOGIN & EXECUTE"
-            txtKey.Visible = true
-        end
-    end
-
-    if savedKey ~= "" then
-        infoLabel.Text = "Mendeteksi HWID... Mencoba Auto-Login"
-        tryLogin(savedKey)
-    else
-        infoLabel.Text = "Silahkan masukkan License Key kamu"
-        btnLogin.Text = "LOGIN & EXECUTE"
-        txtKey.Visible = true
-    end
-
     btnLogin.MouseButton1Click:Connect(function()
-        if txtKey.Text ~= "" then tryLogin(txtKey.Text) end
+        local inputKey = txtKey.Text
+        if inputKey == "" then
+            infoLabel.Text = "Key tidak boleh kosong!"
+            return
+        end
+
+        btnLogin.Text = "Mengecek Key di Server..."
+        infoLabel.Text = "Mohon tunggu sebentar..."
+
+        -- Mengambil data key dari GitHub
+        local success, result = pcall(function()
+            return game:HttpGet(keyDatabaseURL .. "?v=" .. math.random(1, 9999))
+        end)
+
+        if not success then
+            infoLabel.Text = "Gagal terhubung ke GitHub!"
+            btnLogin.Text = "LOGIN & EXECUTE"
+            return
+        end
+
+        -- Mengecek apakah inputKey ada di dalam file txt GitHub
+        if string.find(result, inputKey) then
+            frame:Destroy()
+            showSplash("VIP MEMBER " .. utf8.char(11088), "License Valid! Akses Diberikan.", Color3.fromRGB(255, 215, 0))
+        else
+            infoLabel.Text = "Key Salah atau Expired!"
+            btnLogin.Text = "LOGIN & EXECUTE"
+        end
     end)
 end)
