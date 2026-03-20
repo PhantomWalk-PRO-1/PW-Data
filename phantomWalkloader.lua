@@ -22,7 +22,7 @@ local pesanBuatAyang = "mangat ayyyy! " .. utf8.char(10084) .. utf8.char(128150)
 -- 🌟 Daftar Spesial Member (Format: ["Username"] = "Nama Sambutan")
 local specialMembers = {
     ["OmGifar133"] = utf8.char(128081) .. " OM GIFAR " .. utf8.char(128081),
-    ["myanxiety21"] = "DUTA BASECAMP",
+    ["myanxie1"] = "DUTA BASECAMP",
     ["Anomali_9950"] = "BEST PRENNN",
     ["jaja"] = "BEST PRENNN",
     ["hsj"] = "BEST PRENNN",
@@ -116,7 +116,7 @@ end
 -- ==========================================
 
 if myName == elKapitanName then
-    showSplash("EL KAPITAN!! " .. utf8.char(128572), " WELCOME BACK BOSSS...", Color3.fromRGB(255, 220, 50))
+    showSplash("EL KAPITAN!!\n" .. utf8.char(128572), " WELCOME BACK BOSSS...", Color3.fromRGB(255, 220, 50))
     return
 elseif myName == ayangName then
     showSplash("NYONYA RATU!! " .. utf8.char(128081), pesanBuatAyang, Color3.fromRGB(255, 105, 180))
@@ -215,10 +215,24 @@ task.spawn(function()
 
         if licData.success then
             pcall(function() writefile(saveFileName, HttpService:JSONEncode({Key = key})) end)
-            local expiry = os.date("%d-%m-%Y", tonumber(licData.info.expiry))
+            
+            local expiryUnix = tonumber(licData.info.expiry)
+            local expiryDate = os.date("%d-%m-%Y", expiryUnix)
+            
+            -- Menghitung sisa waktu key
+            local sisaDetik = expiryUnix - os.time()
+            local sisaWaktuTeks = ""
+            if sisaDetik > 0 then
+                local hari = math.floor(sisaDetik / 86400)
+                local jam = math.floor((sisaDetik % 86400) / 3600)
+                local menit = math.floor((sisaDetik % 3600) / 60)
+                sisaWaktuTeks = " | Sisa: " .. hari .. "h " .. jam .. "j " .. menit .. "m"
+            else
+                sisaWaktuTeks = " | Sisa: EXPIRED"
+            end
             
             frame:Destroy()
-            showSplash("VIP MEMBER " .. utf8.char(11088), "License Valid! Aktif Hingga: " .. expiry, Color3.fromRGB(255, 215, 0))
+            showSplash("VIP MEMBER " .. utf8.char(11088), "License Valid! Aktif Hingga: " .. expiryDate .. sisaWaktuTeks, Color3.fromRGB(255, 215, 0))
         else
             infoLabel.Text = "Gagal: " .. (licData.message or "Key Salah!")
             btnLogin.Text = "LOGIN & EXECUTE"
